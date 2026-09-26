@@ -1,0 +1,6 @@
+node_modules/
+*.log
+*.bak
+*.bak-*
+.DS_Store
+Thumbs.dbregistered-skills-*.json

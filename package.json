@@ -1,0 +1,55 @@
+{
+    "name": "dsh-skill-sets",
+    "version": "0.1.1",
+    "private": true,
+    "type": "module",
+    "main": "lib/index.js",
+    "exports": {
+        ".": {
+            "default": "./lib/index.js"
+        },
+        "./client": {
+            "default": "./lib/client.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "files": [
+        "lib",
+        "cordis.patch.yml",
+        "package.json"
+    ],
+    "dsh": {
+        "bundle": {
+            "patch": "./cordis.patch.yml"
+        },
+        "client": {
+            "inject": [
+                "@deepseek-ai/dsh-client-ui-conversation"
+            ],
+            "platform": "web"
+        }
+    },
+    "peerDependencies": {
+        "@deepseek-ai/cordis": "*",
+        "@deepseek-ai/dsh-tools": "^0.1.0-rc.6 || ^0.1.5-rc.2",
+        "react": "^18.2.0"
+    },
+    "description": "技能档（DSH 插件）：按任务类型分档，切档即换注入的技能清单（目录与正文双封），输入框上方档位 pill + 宿主按会话持久化",
+    "keywords": [
+        "dsh",
+        "deepseek-harness",
+        "plugin",
+        "skill-sets",
+        "skills"
+    ],
+    "license": "MIT",
+    "author": "Ln1m (https://github.com/Ln1m)",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Ln1m/dsh-skill-sets.git"
+    },
+    "homepage": "https://github.com/Ln1m/dsh-skill-sets#readme",
+    "bugs": {
+        "url": "https://github.com/Ln1m/dsh-skill-sets/issues"
+    }
+}

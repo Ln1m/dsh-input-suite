@@ -1,0 +1,8 @@
+# dsh-skill-sets plugin patch：把双面插件行插进 web profile 的名册。
+# 宿主半边（exports "."）跑在 host 进程里：技能档定义、影子遮蔽、skill_set 工具、
+# /skill-sets/api/* 路由与按会话持久化；
+# package.json 里的 `dsh.client` 声明让浏览器半边（exports "./client"）在 Web GUI
+# 里加载——即输入框上方那条「技能档」pill。
+- insert:
+    - id: dsh-skill-sets
+      name: 'dsh-skill-sets'
