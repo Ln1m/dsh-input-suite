@@ -1,5 +1,7 @@
 # dsh-skill-sets
 
+[English](README.en.md) · 中文
+
 ![技能档 pill 与档位菜单界面示意](assets/dsh-skill-sets.png)
 
 *界面示意：按官方主题变量渲染的版式，非实机截图。*
