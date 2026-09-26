@@ -2,7 +2,7 @@
 
 [中文](README.md) · English
 
-![Skill-set pill and menu](assets/dsh-skill-sets.png)
+![Skill-set pill and menu](assets/dsh-skill-sets-en.png)
 
 *Mockup: layout rendered from the official theme tokens, not a screenshot of a running instance.*
 
