@@ -2,9 +2,9 @@
 
 [中文](README.md) · English
 
-![Skill-set pill and menu](assets/dsh-skill-sets-en.png)
+![Skill-set pill and menu](assets/dsh-skill-sets.png)
 
-*Mockup: layout rendered from the official theme tokens, not a screenshot of a running instance.*
+*Screenshot of a running DSH instance; demo content is sanitized.*
 
 Groups skills into "sets" by task type: switching a set swaps the skill list loaded for that session, hiding every other skill both in the catalog and at the body level. A row of set pills sits above the composer, and the active sets persist per session.
 
