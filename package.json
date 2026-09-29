@@ -48,8 +48,8 @@
         "type": "git",
         "url": "git+https://github.com/Ln1m/dsh-skill-sets.git"
     },
-    "homepage": "https://github.com/Ln1m/dsh-skill-sets#readme",
+    "homepage": "https://github.com/Ln1m/dsh-input-skills#readme",
     "bugs": {
-        "url": "https://github.com/Ln1m/dsh-skill-sets/issues"
+        "url": "https://github.com/Ln1m/dsh-input-skills/issues"
     }
 }
