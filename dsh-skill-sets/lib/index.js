@@ -668,7 +668,7 @@ function userTextOf(message) {
  *   2. 首轮注入的「【技能档 · 第一步】」气泡（旧 `injectSetPicker`）；
  *   3. 首轮之后注入的「技能档路由建议」气泡（旧 `autoroute` 中途分支）——
  *      就是用户明确嫌弃的那个对话框。
- * 备份：改动前先把原文件另存到安装根的 backups\ 下。
+ * 备份：`D:\DeepSeek_harness\backups\skill-sets-drop-autoroute-20260921-104555\`。
  *
  * 现在首轮定档是模型自己的固定动作（`~/.dsh/AGENTS.md › skill-set-first-turn` + skill_set 工具描述）；
  * 「只有首轮可切档」的硬闸门仍由工具侧强制（见 `makeTool`），不受本次撤除影响。
