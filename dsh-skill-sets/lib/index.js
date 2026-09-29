@@ -9,8 +9,7 @@
  *     - with NO active set nothing is hidden -> exactly the previous behaviour
  *
  * NAMING
- *   This is NOT a persona. The user's persona is `~/.dsh/global-persona.md`, injected
- *   for every session by the host-files plugin. A skill set only decides which skills
+ *   A skill set only decides which skills
  *   are loaded and adds a short working brief. It never restates identity.
  *
  * MECHANICS (each verified against this checkout)

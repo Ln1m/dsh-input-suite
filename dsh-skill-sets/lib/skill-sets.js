@@ -1,9 +1,7 @@
 /**
  * Skill-set definitions for the DSH skill-sets plugin.
  *
- * Naming (deliberate): this feature is NOT a persona. The user's persona lives in
- * `~/.dsh/global-persona.md` and is injected for every session by the host-files
- * plugin. A "skill set" (技能档) only controls WHICH SKILLS are visible and adds a
+ * Naming (deliberate): a "skill set" (技能档) only controls WHICH SKILLS are visible and adds a
  * short brief of working rules for the active set - it never restates identity.
  *
  * Model
@@ -12,13 +10,15 @@
  *   - Active sets are additive: visible = alwaysOn + union(skills of active sets).
  *   - With NO active set the plugin shows ONLY the always-on skills and hides every
  *     other skill (clean-desk default), while injecting a one-line hint listing the
- *     set menu so a set can still be opened on demand. Unknown/unclassified skills
- *     stay visible - a brand-new skill must never be able to vanish.
- *   - A skill is filed by, in order:
- *       1. its own `skill-set:` frontmatter field (explicit wins)
- *       2. the curated `skills` list below
- *       3. keyword matching on name+description (auto-files NEW skills)
- *       4. `null` = unknown -> left visible, and reported as "unclassified"
+ *     set menu so a set can still be opened on demand.
+ *   - 可见性只看策展名单：a skill is visible iff it is in `ALWAYS_ON_SKILLS` or in the
+ *     `skills` array of an ACTIVE set. Nothing else feeds visibility — the frontmatter
+ *     `skill-set:` field and the keyword fallback are diagnostics only, so a keyword
+ *     hit can no longer hide a skill and a frontmatter line can no longer look like it
+ *     filed one.
+ *   - 未归档技能收敛到 `unclassified`（`planVisibility` 的返回值里点名，维护工具
+ *     `tools/classify-report.mjs` 报出来），既不进目录也不被关键词藏起来；新增技能
+ *     必须显式写进目标档的 `skills` 数组。
  *
  * 改版历史
  * ---------------------------------------------------------------------------
@@ -86,6 +86,15 @@
  *   `lib/index.js` 删掉 `autoroute` / `injectSetPicker` 两种气泡注入与首轮静默开档。
  *   首轮定档改由模型读 `~/.dsh/AGENTS.md` rule 15 后自己调 `skill_set`；「只有首轮
  *   可切档」的硬闸门（工具侧拒绝）保留。备份：`backups\skill-sets-drop-autoroute-20260921-104555\`。
+ *
+ * 2026-09-29 第八次改版（可见性判据收敛，用户：未归档技能不许漏进目录）：
+ *   - `planVisibility` 不再读 `skill-set:` frontmatter、也不再走关键词兜底：可见 = 常驻
+ *     名单 ∪「正在生效的档」的策展名单。改前那条兜底方向是反的——关键词命中会把技能
+ *     归进某档并隐藏，未命中反而常驻可见；frontmatter 更只可能把技能藏起来（它从不会
+ *     让它可见），所以那两处等于死代码。
+ *   - 未归档技能一律进 `unclassified`（既不进目录、也不被关键词藏起来），维护工具
+ *     `tools/classify-report.mjs` 新增 `not-curated` 指标报出来；当前磁盘 236 个技能
+ *     为 0，规则收紧不会隐藏任何在册技能。
  */
 
 export const ALWAYS_ON_SKILLS = ["default-settings", "genui"];
@@ -526,9 +535,10 @@ export function classifyByKeywords(name, description) {
 }
 
 /**
- * Resolve one skill to its set.
- * Explicit frontmatter `skill-set:` wins (may also be "always"); otherwise the
- * curated index; otherwise the keyword fallback; otherwise null (stays visible).
+ * Diagnostic classifier: where WOULD one skill land if it had to be filed.
+ * Explicit frontmatter `skill-set:` wins (may also be "always"); otherwise the curated
+ * index; otherwise the keyword fallback; otherwise null.
+ * 注意：这只是给维护报告用的建议值，**不参与可见性判定**（见 `planVisibility`）。
  */
 export function resolveSkill(name, description, declaredSet) {
   if (declaredSet) {
@@ -590,15 +600,12 @@ export function planVisibility(allSkills, activeIds, disabledBySet) {
   const unclassified = [];
   for (const s of allSkills) {
     const name = typeof s === "string" ? s : s.name;
-    const desc = typeof s === "string" ? "" : s.description || "";
-    const declared = typeof s === "string" ? "" : s["skill-set"] || s.skillSet || "";
-    const set = idx.has(name) ? idx.get(name) : resolveSkill(name, desc, declared);
-    if (set === null) unclassified.push(name);
-    if (ALWAYS_ON_SKILLS.includes(name) || set === null || visible.has(name)) {
-      kept.push(name);
-    } else {
-      hidden.push(name);
-    }
+    /* 可见性判据只有两条：常驻名单、或「正在生效的档」的策展名单。
+       frontmatter 与关键词兜底一律不参与——命中与否都不该改变谁能被看见。 */
+    const filed = idx.has(name) || ALWAYS_ON_SKILLS.includes(name);
+    if (!filed) unclassified.push(name);
+    if (ALWAYS_ON_SKILLS.includes(name) || visible.has(name)) kept.push(name);
+    else hidden.push(name);
   }
   return { active: act, hidden, kept, unclassified, visible: [...visible] };
 }

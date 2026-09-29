@@ -1,6 +1,7 @@
 {
     "name": "dsh-skill-sets",
     "version": "0.1.1",
+    "private": true,
     "type": "module",
     "main": "lib/index.js",
     "exports": {
@@ -12,6 +13,11 @@
         },
         "./package.json": "./package.json"
     },
+    "files": [
+        "lib",
+        "cordis.patch.yml",
+        "package.json"
+    ],
     "dsh": {
         "bundle": {
             "patch": "./cordis.patch.yml"

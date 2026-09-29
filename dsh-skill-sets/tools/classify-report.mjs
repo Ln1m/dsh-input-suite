@@ -113,11 +113,14 @@ if (process.argv.includes("--json")) {
 const idx = skillIndex();
 console.log("=== SKILL INVENTORY (" + skills.length + " entries) ===");
 let unclassified = 0;
+let notCurated = 0;
 for (const s of skills) {
-  const set = resolveSkill(s.name, s.description, s.set);
-  if (set === null) unclassified += 1;
-  console.log("  " + String(set === null ? "UNCLASSIFIED" : set).padEnd(14)
-    + s.name.padEnd(28) + (s.set ? "(frontmatter skill-set:" + s.set + ")" : ""));
+  const guess = resolveSkill(s.name, s.description, s.set);
+  const filed = idx.has(s.name) || ALWAYS_ON_SKILLS.includes(s.name);
+  if (guess === null) unclassified += 1;
+  if (!filed) notCurated += 1;
+  console.log("  " + String(filed ? (idx.get(s.name) || "always") : "NOT-CURATED").padEnd(14)
+    + s.name.padEnd(28) + (filed ? "" : "(建议 " + String(guess) + ")" + (s.set ? " frontmatter skill-set:" + s.set : "")));
 }
 
 console.log("\n=== CURATED MAPPING ===");
@@ -138,7 +141,8 @@ console.log("  always-on: " + ALWAYS_ON_SKILLS.join(", "));
 const missing = [...declared.keys(), ...ALWAYS_ON_SKILLS].filter((s) => !skills.some((x) => x.name === s));
 console.log("\n=== HEALTH ===");
 console.log("  overlap            : " + overlap);
-console.log("  unclassified       : " + unclassified + (unclassified ? "  -> stay VISIBLE" : ""));
+console.log("  not-curated        : " + notCurated + (notCurated ? "  -> 会被可见性规则隐藏，必须显式归档" : ""));
+console.log("  keyword-guess-miss : " + unclassified + (unclassified ? "  -> 连关键词都猜不出档（只影响报告）" : ""));
 console.log("  declared-but-not-in-this-root: " + missing.length + (missing.length ? "  -> " + missing.join(", ") : ""));
 
 const args = process.argv.slice(2);
