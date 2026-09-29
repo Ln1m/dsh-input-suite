@@ -23,6 +23,12 @@ Or install the whole family on Windows PowerShell:
 ./install.ps1
 ```
 
+Install straight from the release, no clone needed:
+
+```sh
+dsh plugin --profile web add "https://github.com/Ln1m/dsh-input-suite/releases/download/v0.1.0/dsh-skill-sets-0.1.1.tgz"
+```
+
 Restart the web instance afterwards. Each package directory carries its own README.
 
 ## Screenshots
