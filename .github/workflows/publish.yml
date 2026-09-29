@@ -1,0 +1,43 @@
+name: publish to npm
+
+# Publishes this repository's packages with npm Trusted Publishing (OIDC).
+# No NPM_TOKEN secret is involved: the job mints a short-lived OIDC token that npm verifies
+# against the trusted publisher configured for each package.
+#
+# One-time setup per package on npmjs.com (package -> Settings -> Trusted Publisher):
+#   Publisher: GitHub Actions
+#   Organization/User: Ln1m
+#   Repository: dsh-input-suite
+#   Workflow filename: publish.yml
+#
+# Trigger: manually, or by pushing a v* tag.
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - dsh-skill-sets
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - name: npm with trusted publishing support
+        run: npm install -g npm@latest
+      - name: publish
+        working-directory: ${{ matrix.package }}
+        run: npm publish --access public --provenance
