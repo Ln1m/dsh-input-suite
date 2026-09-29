@@ -10,6 +10,13 @@ Composer area: skill sets
 |---|---|
 | `dsh-skill-sets` | Group skills into task-type sets; switching a set swaps the injected skill list |
 
+## Release lines
+
+| Release | DSH line | Notes |
+|---|---|---|
+| `v0.1.1` | 0.1.7 | Features developed on the local DSH 0.1.7 line; this update |
+| `v0.1.0` | 0.1.6 | Last release of the DSH 0.1.6 line; stays usable, no further updates |
+
 ## Install
 
 ```sh
@@ -26,7 +33,7 @@ Or install the whole family on Windows PowerShell:
 Install straight from the release, no clone needed:
 
 ```sh
-dsh plugin --profile web add "https://github.com/Ln1m/dsh-input-suite/releases/download/v0.1.0/dsh-skill-sets-0.1.1.tgz"
+dsh plugin --profile web add "https://github.com/Ln1m/dsh-input-suite/releases/download/v0.1.1/dsh-skill-sets-0.1.1.tgz"
 ```
 
 If the install fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` (a TLS-intercepting proxy; Node does not read the system CA store by default), run `$env:NODE_OPTIONS='--use-system-ca'` first.
