@@ -29,6 +29,8 @@ Install straight from the release, no clone needed:
 dsh plugin --profile web add "https://github.com/Ln1m/dsh-input-suite/releases/download/v0.1.0/dsh-skill-sets-0.1.1.tgz"
 ```
 
+If the install fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE` (a TLS-intercepting proxy; Node does not read the system CA store by default), run `$env:NODE_OPTIONS='--use-system-ca'` first.
+
 Restart the web instance afterwards. Each package directory carries its own README.
 
 ## Screenshots
