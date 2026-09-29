@@ -46,10 +46,11 @@
     "author": "Ln1m (https://github.com/Ln1m)",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/Ln1m/dsh-input-skills.git"
+        "url": "git+https://github.com/Ln1m/dsh-input-suite.git",
+        "directory": "dsh-skill-sets"
     },
-    "homepage": "https://github.com/Ln1m/dsh-input-skills#readme",
+    "homepage": "https://github.com/Ln1m/dsh-input-suite/tree/main/dsh-skill-sets#readme",
     "bugs": {
-        "url": "https://github.com/Ln1m/dsh-input-skills/issues"
+        "url": "https://github.com/Ln1m/dsh-input-suite/issues"
     }
 }

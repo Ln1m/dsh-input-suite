@@ -1,0 +1,28 @@
+# dsh-skill-sets
+
+> **The vk build only**: position — the composer (official `conversation.input.dock`); install the [dsh-vk-suite](https://github.com/Ln1m/dsh-vk-suite) contract + skeleton first.
+> Conflicts: a slot renders only its highest-priority entry, and two registrations at the same priority throw; mutually exclusive with anything claiming the same position (see "How to use it / what it conflicts with" in [dsh-vk-suite](https://github.com/Ln1m/dsh-vk-suite)).
+
+[中文](README.md) · English
+
+![Skill-set pill and menu](assets/dsh-skill-sets.png)
+
+*Screenshot of a running DSH instance; demo content is sanitized.*
+
+Groups skills into "sets" by task type: switching a set swaps the skill list loaded for that session, hiding every other skill both in the catalog and at the body level. A row of set pills sits above the composer, and the active sets persist per session.
+
+## Install
+
+```sh
+dsh plugin --profile web add file:<this repo>
+```
+
+Restart the web instance afterwards.
+
+Set definitions live in `lib/skill-sets.js` — set names, hints, member skills and the brief text are all there. After editing, re-sync to `~/.dsh/profiles/web/node_modules/dsh-skill-sets` and restart.
+
+## Environment
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DSH_SKILLSETS_DIAG` | `~/.dsh/logs/skill-sets-deny.log` | Diagnostic log for tool-surface trimming |

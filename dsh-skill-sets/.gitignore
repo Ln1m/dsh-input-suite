@@ -3,4 +3,4 @@ node_modules/
 *.bak
 *.bak-*
 .DS_Store
-Thumbs.db
+Thumbs.dbregistered-skills-*.json
