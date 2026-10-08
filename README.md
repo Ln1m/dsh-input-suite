@@ -34,7 +34,7 @@ dsh plugin --profile web add file:<本仓库>/dsh-skill-sets
 不克隆仓库、直接从 Release 装（一行一个包）：
 
 ```sh
-dsh plugin --profile web add "https://github.com/Ln1m/dsh-input-suite/releases/download/v0.1.3/dsh-skill-sets-0.1.3.tgz"
+dsh plugin --profile web add "https://github.com/Ln1m/dsh-input-suite/releases/download/v0.1.3/dsh-skill-sets-0.1.4.tgz"
 ```
 
 装的时候若报 `UNABLE_TO_VERIFY_LEAF_SIGNATURE`（国内出口证书注入，Node 默认不读系统证书库），先执行 `$env:NODE_OPTIONS='--use-system-ca'` 再装。
