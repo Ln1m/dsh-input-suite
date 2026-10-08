@@ -269,6 +269,8 @@ function saveConfig() {
 /** Last catalog seen per agent (names only). WeakMap, so a disposed agent is collected. */
 const catalogs = new WeakMap();
 
+const manualOnlyByAgent = new WeakMap();
+
 function catalogOf(agent) {
   try {
     return catalogs.get(agent) || [];
@@ -287,8 +289,13 @@ async function allSkillsOf(agent, signal) {
       cwd: agent.session?.header?.cwd,
       signal,
     });
-    const mapped = (list || []).map((s) => ({ name: s.name, description: s.description || "" }));
+    const mapped = (list || []).map((s) => ({
+      name: s.name,
+      description: s.description || "",
+      modelInvocable: !(s.invocation && s.invocation.modelInvocable === false),
+    }));
     catalogs.set(agent, mapped.map((s) => s.name));
+    manualOnlyByAgent.set(agent, new Set(mapped.filter((s) => !s.modelInvocable).map((s) => s.name)));
     return mapped;
   } catch (error) {
     return [];
@@ -1007,9 +1014,11 @@ function statePayload(agent) {
   const entry = installed.get(agent);
   const hiddenCount = entry ? entry.shadows.size : 0;
   const catalog = catalogOf(agent);
+  const manualOnly = manualOnlyByAgent.get(agent);
+  const modelCatalogSize = Math.max(0, catalog.length - (manualOnly ? manualOnly.size : 0));
   // `total` comes from the last catalog read (catalogOf) and falls back to the
   // definition total + current shadows before the first read.
-  const total = Math.max(catalog.length, countVisible(active) + hiddenCount);
+  const total = Math.max(modelCatalogSize, countVisible(active) + hiddenCount);
   return {
     ...base,
     ok: true,

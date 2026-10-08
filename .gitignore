@@ -4,3 +4,8 @@ node_modules/
 *.bak-*
 .DS_Store
 Thumbs.db
+*.exe
+*.WebView2/
+build/packages/
+obj/
+bin/

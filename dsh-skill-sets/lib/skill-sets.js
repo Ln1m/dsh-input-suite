@@ -95,6 +95,24 @@
  *   - 未归档技能一律进 `unclassified`（既不进目录、也不被关键词藏起来），维护工具
  *     `tools/classify-report.mjs` 新增 `not-curated` 指标报出来；当前磁盘 236 个技能
  *     为 0，规则收紧不会隐藏任何在册技能。
+ *
+ * 2026-10-04 第九次改版（用户：让技能真的被用起来；机制与档位语义一律不动）：
+ *   - **只改内容，不改机制**：可见性规则、档 id、档名、keywords、brief 全部保持原样。
+ *     本次改动落在技能 frontmatter 的 description 与技能正文，均**改完即生效**——技能目录由
+ *     `@deepseek-ai/dsh-skill-filesystem` 的 chokidar watcher 热更新（depth:1，认
+ *     `SKILL.md` 的 add/change/unlink），无需重启。
+ *   - description 整定：全库 236 条统一成「中文定位 + 触发：现象词」格式，全库描述字符数
+ *     66,445 → 41,438（-37.6%）；超过 500 字符会被目录截断的从 31 条降到 1 条；
+ *     dev 档 14,491 → 5,175 字符。映射表：`scripts\skills\desc-maps\*.json`。
+ *   - 关键技能正文新增/升级「§0 先查这里（触发词 → 第一动作 → 期望值 → 不符说明什么）」
+ *     速查表：embedded-mcu（升级）、stm32-embedded-dev、debugging-process、
+ *     windows-powershell-scripting、dsh-plugin-development。
+ *     补丁：`scripts\skills\sections\*.md` + `scripts\skills\patch-skill.mjs`。
+ *   - **mustLead 修正（本文件唯一的改动）**：hardware 档原先点名
+ *     `stm32-embedded-dev`（正文只管 STM32）却没有 `embedded-mcu`（正文含 C2000/CCS
+ *     烧写、启动、时基、中断的全部排障路径），于是 F28379D 类排障里模型被引导去读 STM32
+ *     技能、漏掉答案所在的那条。现补上 `embedded-mcu` 并置于首位。mustLead 属于 system
+ *     前缀，改完**需用户点重启**才生效。
  */
 
 export const ALWAYS_ON_SKILLS = ["default-settings", "genui"];
@@ -126,7 +144,7 @@ export function emptySetsBrief() {
 export const SET_ORDER = [
   "base",
   "sim", "math", "hardware", "figure", "doc", "dev",
-  "design", "ops", "life",
+  "design", "ops", "pc", "life",
 ];
 
 /**
@@ -177,7 +195,7 @@ export function resolveSetId(id) {
 export const SKILL_SETS = {
   base: {
     label: "基础底座",
-    hint: "脚本·软件手册·技能·排查",
+    hint: "脚本·手册·技能·排查·思考协作",
     keywords: [
       "powershell", "shell", "script", "handbook", "manual", "skill", "context",
       "bootstrap", "troubleshoot", "dataset", "datasheet", "kaggle", "zenodo",
@@ -198,7 +216,15 @@ export const SKILL_SETS = {
       "context-engineering", "debugging-process", "data-retrieval",
       // 元技能：路由「该用哪个技能/该走哪条流程」不产出交付物，是技能面本身的活，
       // 归底座（与 skill-creator / context-engineering 同类），不跟某个工程会话走。
-      "ask-matt", "using-agent-skills",
+      "using-agent-skills", "writing-for-agents",
+      // 2026-10-05 按能力重排：排查诊断 + 思考协作 + 调研交接 + 复盘这类跨领域通用能力，
+      // 从 dev / life 提到默认档——base 是新会话的默认档，通用能力不该埋在某个学科档里。
+      "troubleshoot", "diagnosing-bugs", "debugging-and-error-recovery",
+      "grilling", "idea-refine", "interview-me",
+      "research",
+      "frame-problem", "brainstorm", "investigate", "challenge", "probe",
+      "experiment", "benchmark-praxis",
+      "retrospect-collab", "retrospect-domain", "retrospect-report",
     ],
     /** 本档主力技能：briefFor 在档位激活时把这行注入系统提示，强制先加载。 */
     mustLead: ["windows-powershell-scripting", "software-handbook", "debugging-process"],
@@ -284,7 +310,7 @@ export const SKILL_SETS = {
       "precision-afe-review", "embedded-mcu", "stm32-embedded-dev",
       "code-review-checklist",
     ],
-    mustLead: ["stm32-embedded-dev", "easyeda-api", "precision-afe-review"],
+    mustLead: ["embedded-mcu", "stm32-embedded-dev", "easyeda-api", "precision-afe-review"],
   },
 
   figure: {
@@ -363,7 +389,7 @@ export const SKILL_SETS = {
 
   dev: {
     label: "写代码与工程",
-    hint: "代码·测试·CI·排查·计划规格",
+    hint: "代码·测试·CI·规格·发布",
     keywords: [
       "refactor", "code review", "api design", "tdd", "ci", "git", "test",
       "debug", "diagnose", "root cause", "regression", "repro", "triage",
@@ -386,22 +412,17 @@ export const SKILL_SETS = {
       "constraint-driven-development", "deprecation-and-migration",
       "documentation-and-adrs", "domain-modeling", "doubt-driven-development",
       "git-guardrails-claude-code", "git-workflow-and-versioning",
-      "improve-codebase-architecture", "incremental-implementation",
+      "incremental-implementation",
       "migrate-to-shoehorn", "observability-and-instrumentation",
       "performance-optimization", "prototype", "resolving-merge-conflicts",
       "scaffold-exercises", "security-and-hardening", "setup-pre-commit",
       "shipping-and-launch", "source-driven-development", "test-driven-development",
       "tdd", "webapp-testing", "web-artifacts-builder",
-      "troubleshoot", "diagnosing-bugs", "debugging-and-error-recovery", "triage",
       "openspec-design", "openspec-plan", "openspec-init",
       "openspec-develop", "openspec-test", "openspec-review", "openspec-reflect",
-      "openspec-replan", "openspec-sync", "to-spec", "to-tickets",
-      "planning-and-task-breakdown", "spec-driven-development", "writing-for-agents",
-      "handoff",
-      // 通用对话类小工具（提问/澄清/评审/教学），跟着工程会话走
-      "grill-me", "grill-with-docs", "grilling", "idea-refine", "implement",
-      "interview-me", "research", "teach", "to-questionnaire",
-      "wait-what", "wayfinder", "wizard",
+      "openspec-replan", "openspec-sync",
+      "planning-and-task-breakdown", "spec-driven-development",
+      "writing-plans", "wizard",
     ],
     mustLead: ["spec-driven-development", "code-review", "test-driven-development"],
   },
@@ -458,17 +479,38 @@ export const SKILL_SETS = {
     ].join("\n"),
     skills: [
       "dsh-plugin-development", "dsh-token-budget", "dsh-upgrade", "mcp-builder",
-      // computer use 是 DSH 自身能力的实操手册。必须显式列出：planVisibility 只按
-      // skills 数组构造可见集，关键词 fallback 不参与可见性判定——漏列即永久隐藏
-      // （2026-09-21 整定：该技能原缺 frontmatter，从未注册，补上后才发现此坑）。
-      "dsh-computer-use",
     ],
     mustLead: ["dsh-plugin-development", "dsh-token-budget", "dsh-upgrade"],
   },
 
+  // 2026-10-05 第十次改版：computer use 从 ops 档拆出，独立成 pc 档。
+  // 起因（实测）：cua_driver_native__* 56 个工具的 schema = 106,494 字符 ≈ 30k tok/请求，
+  // 占固定前缀的 61%；只要开 ops 档就整场背着它，而 ops 正是 DSH 运维的日常档。
+  // 拆开后 ops 与其他 9 档一样由 denyTools 裁掉这 56 个名（见 ~/.dsh/skill-sets.json），
+  // 要用电脑控制时才开本档——技能与工具同档，口径不乱。
+  pc: {
+    label: "电脑控制",
+    hint: "看屏幕·动鼠标键盘·桌面自动化",
+    keywords: [
+      "computer use", "cua", "desktop", "screenshot", "screen", "mouse", "keyboard",
+      "window", "accessibility",
+      "电脑控制", "桌面自动化", "截屏", "看屏幕", "鼠标", "键盘", "窗口", "点击",
+    ],
+    /** One-line rule used by the compact brief. */
+    briefOne: "电脑控制=先定位窗口并取新鲜快照再动手、默认后台投递不抢焦点；操作后必须回读验证，点过不等于生效",
+    brief: [
+      "当前技能档：电脑控制。",
+      "- 覆盖：看屏幕（截图/窗口快照/无障碍树）、动鼠标键盘、操作真实应用窗口与浏览器、桌面自动化链路。",
+      "- 铁律：先定位窗口并取一次新鲜快照（element_token 与坐标都只认那次快照），再动手；默认后台投递，不抢他的焦点。",
+      "- 操作后从新状态回读验证——「已投递」不等于「已生效」；不确定就停下来问。",
+    ].join("\n"),
+    skills: ["dsh-computer-use"],
+    mustLead: ["dsh-computer-use"],
+  },
+
   life: {
     label: "陪伴与生活",
-    hint: "情绪·哲学对话·追问复盘·跑腿",
+    hint: "情绪·哲学对话·人格陪聊·跑腿",
     keywords: [
       "counsel", "coach", "dialogue", "philosophy", "stoic", "emotion",
       "brainstorm", "investigate", "challenge", "retrospect", "decision",
@@ -491,11 +533,10 @@ export const SKILL_SETS = {
       "hadot", "buber", "arendt", "fukuyama", "herbert", "kusanagi", "leto-ii",
       "meadows", "morin", "musashi", "sunzi", "taleb",
       "mt-paotui-for-client",
-      "frame-problem", "brainstorm", "investigate", "challenge", "probe",
-      "experiment", "benchmark-praxis", "retrospect-collab", "retrospect-domain",
-      "retrospect-report",
+      // 2026-10-05 按能力重排：思考协作与复盘三件套已提到 base 档；
+      // 本档只留「陪伴与生活」能力（情绪、人格、跑腿）。
     ],
-    mustLead: ["counseling-companion", "cognitive-toolkit", "frame-problem"],
+    mustLead: ["counseling-companion", "cognitive-toolkit", "coach"],
   },
 };
 
@@ -600,6 +641,7 @@ export function planVisibility(allSkills, activeIds, disabledBySet) {
   const unclassified = [];
   for (const s of allSkills) {
     const name = typeof s === "string" ? s : s.name;
+    if (s && typeof s === "object" && s.modelInvocable === false) continue;
     /* 可见性判据只有两条：常驻名单、或「正在生效的档」的策展名单。
        frontmatter 与关键词兜底一律不参与——命中与否都不该改变谁能被看见。 */
     const filed = idx.has(name) || ALWAYS_ON_SKILLS.includes(name);

@@ -36,7 +36,7 @@ function readFrontmatter(file) {
   };
   const name = get("name");
   if (!name) return null; // reference/doc files carry no name:
-  return { name, description: get("description"), set: get("skill-set") };
+  return { name, description: get("description"), set: get("skill-set"), modelOff: get("disable-model-invocation") === "true" };
 }
 
 function scan() {
@@ -120,7 +120,8 @@ for (const s of skills) {
   if (guess === null) unclassified += 1;
   if (!filed) notCurated += 1;
   console.log("  " + String(filed ? (idx.get(s.name) || "always") : "NOT-CURATED").padEnd(14)
-    + s.name.padEnd(28) + (filed ? "" : "(建议 " + String(guess) + ")" + (s.set ? " frontmatter skill-set:" + s.set : "")));
+    + s.name.padEnd(28) + (filed ? "" : "(建议 " + String(guess) + ")" + (s.set ? " frontmatter skill-set:" + s.set : ""))
+    + (s.modelOff ? "  [model-off：官方目录已过滤，模型不可见]" : ""));
 }
 
 console.log("\n=== CURATED MAPPING ===");
@@ -141,7 +142,11 @@ console.log("  always-on: " + ALWAYS_ON_SKILLS.join(", "));
 const missing = [...declared.keys(), ...ALWAYS_ON_SKILLS].filter((s) => !skills.some((x) => x.name === s));
 console.log("\n=== HEALTH ===");
 console.log("  overlap            : " + overlap);
+const notCuratedModelOff = skills.filter((s) => s.modelOff && !idx.has(s.name) && !ALWAYS_ON_SKILLS.includes(s.name)).length;
 console.log("  not-curated        : " + notCurated + (notCurated ? "  -> 会被可见性规则隐藏，必须显式归档" : ""));
+if (notCuratedModelOff > 0) {
+  console.log("  ... 其中 model-off : " + notCuratedModelOff + "  -> 带 disable-model-invocation，官方技能目录本就过滤，归档与否只影响本报告与技能档面板");
+}
 console.log("  keyword-guess-miss : " + unclassified + (unclassified ? "  -> 连关键词都猜不出档（只影响报告）" : ""));
 console.log("  declared-but-not-in-this-root: " + missing.length + (missing.length ? "  -> " + missing.join(", ") : ""));
 
